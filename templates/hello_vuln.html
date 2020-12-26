@@ -1,0 +1,8 @@
+<!DOCTYPE HTML>
+<title>Hello</title>
+{% if name %}
+  <!--The |safe filter disables autoescaping, allowing reflected XSS-->
+  <h1>Hello, {{ name|safe }}!</h1>
+{% else %}
+  <h1>Hello, World!</h1>
+{% endif %}
