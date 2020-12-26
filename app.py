@@ -1,5 +1,12 @@
+from enum import Enum
+
 from flask import Flask, render_template, request, redirect, url_for
 app = Flask(__name__)
+
+
+class Site(Enum):
+    SAFE = 'safe'
+    VULN = 'vuln'
 
 
 @app.route('/', methods=('GET',))
@@ -46,16 +53,21 @@ def hello_safe():
     return render_template('hello_safe.html', name=name)
 
 
+def whoami_base(site):
+    if request.method == 'POST':
+        name = request.form['name']
+        dest = 'hello_vuln' if site == Site.VULN else 'hello_safe'
+        return redirect(url_for(dest, name=name))
+    return render_template('whoami.html')
+
+
 @app.route('/vuln/whoami/', methods=('GET', 'POST'))
 def whoami_vuln():
     '''Simple webform that accepts a user's name.
 
     Redirects the user to a vulnerable greeting page.
     '''
-    if request.method == 'POST':
-        name = request.form['name']
-        return redirect(url_for('hello_vuln', name=name))
-    return render_template('whoami.html')
+    return whoami_base(Site.VULN)
 
 
 @app.route('/safe/whoami/', methods=('GET', 'POST'))
@@ -64,10 +76,32 @@ def whoami_safe():
 
     Redirects the user to a safe greeting page.
     '''
+    return whoami_base(Site.SAFE)
+
+
+def login_base(site):
     if request.method == 'POST':
-        name = request.form['name']
-        return redirect(url_for('hello_safe', name=name))
-    return render_template('whoami.html')
+        username = request.form['username']
+        password = request.form['password']
+        db = get_db()
+        error = None
+        user = db.execute(
+            'SELECT * FROM user WHERE username = ?', (username,)
+        ).fetchone()
+
+        if user is None:
+            error = 'Incorrect username.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        if error is None:
+            session.clear()
+            session['user_id'] = user['id']
+            return redirect(url_for('index'))
+
+        flash(error)
+
+    return render_template('auth/login.html')
 
 
 if __name__ == '__main__':

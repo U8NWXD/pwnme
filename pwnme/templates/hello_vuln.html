@@ -1,8 +1,14 @@
-<!DOCTYPE HTML>
-<title>Hello</title>
+{% extends 'base_vuln.html' %}
+
+{% block header %}
+  <h1>{% block title %}Hello{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
 {% if name %}
   <!--The |safe filter disables autoescaping, allowing reflected XSS-->
   <h1>Hello, {{ name|safe }}!</h1>
 {% else %}
   <h1>Hello, World!</h1>
 {% endif %}
+{% endblock %}
