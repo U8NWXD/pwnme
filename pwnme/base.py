@@ -24,11 +24,8 @@ def login(site):
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+        user = get_user_from_username(username)
 
         if user is None:
             error = 'Incorrect username.'
@@ -67,6 +64,12 @@ def register(site):
                 (username, generate_password_hash(password))
             )
             db.commit()
+            user = get_user_from_username(username, db)
+            db.execute(
+                'INSERT INTO balance (user_id, balance) VALUES (?, ?)',
+                (user['id'], 0))
+            db.commit()
+
             return redirect(url_for(f'{site.value}.login'))
 
         flash(error)
@@ -85,6 +88,36 @@ def load_logged_in_user():
         ).fetchone()
 
 
+def get_user_from_username(username, db=None):
+    if db is None:
+        db = get_db()
+    user = db.execute(
+        'SELECT * FROM user WHERE username = ?', (username,)
+    ).fetchone()
+    return user
+
+
 def logout(site):
     session.clear()
     return redirect(url_for(f'{site.value}.index'))
+
+
+def get_balance():
+    user_id = session.get('user_id')
+    assert user_id is not None
+
+    db = get_db()
+    balance = db.execute(
+        'SELECT * FROM balance where user_id = ?', (user_id,)
+    ).fetchone()
+    return balance['balance']
+
+
+def update_balance(new_balance):
+    user_id = session.get('user_id')
+    assert user_id is not None
+
+    db = get_db()
+    db.execute('UPDATE balance SET balance = ? WHERE user_id = ?',
+        (new_balance, user_id))
+    db.commit()

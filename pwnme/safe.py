@@ -1,7 +1,9 @@
 import functools
 
 from flask import (
-    render_template, request, Blueprint, g, redirect, url_for)
+    render_template, request, Blueprint, g, redirect, url_for, flash)
+from flask_wtf import FlaskForm
+from wtforms import IntegerField, validators
 
 from pwnme import base
 from pwnme.base import Site
@@ -73,3 +75,37 @@ def login_required(view):
 @login_required
 def hidden():
     return render_template('hidden_safe.html')
+
+
+@bp.route('/view-balance/')
+@login_required
+def view_balance():
+    balance = base.get_balance()
+    return render_template('view_balance_safe.html', balance=balance)
+
+
+class WithdrawForm(FlaskForm):
+    '''A form for requesting withdrawals.
+
+    Inerits from FlaskForm, so it comes with automatic CSRF protection
+    from
+    `https://flask-wtf.readthedocs.io/en/stable/quickstart.html#creating-forms
+    <Flask-WTF>`_
+    '''
+
+    amount = IntegerField('Amount', [validators.DataRequired()])
+
+
+@bp.route('/withdraw/', methods=('GET', 'POST'))
+@login_required
+def withdraw():
+    form = WithdrawForm()
+    if form.validate_on_submit():
+        amount = form.amount.data
+        balance = base.get_balance()
+        new_balance = balance - amount
+        base.update_balance(new_balance)
+        return redirect(url_for('safe.index'))
+    elif not form.validate():
+        flash(form.errors)
+    return render_template('withdraw_safe.html', form=form)

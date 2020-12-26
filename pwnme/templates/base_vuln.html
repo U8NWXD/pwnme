@@ -7,6 +7,8 @@
       <li><span>{{ g.user['username'] }}</span>
       <li><a href="{{ url_for('vuln.logout') }}">Log Out</a>
       <li><a href="{{ url_for('vuln.hidden') }}">Secret Message</a>
+      <li><a href="{{ url_for('vuln.view_balance') }}">View Balance</a>
+      <li><a href="{{ url_for('vuln.withdraw') }}">Withdraw Funds</a>
     {% else %}
       <li><a href="{{ url_for('vuln.register') }}">Register</a>
       <li><a href="{{ url_for('vuln.login') }}">Log In</a>

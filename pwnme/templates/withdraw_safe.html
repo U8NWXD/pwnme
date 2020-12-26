@@ -1,0 +1,13 @@
+{% extends 'base_safe.html' %}
+
+{% block header %}
+    <h1>{% block title %}Withdraw Funds{% endblock %} </h1>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {{ form.csrf_token }}
+    {{ form.amount.label }} {{ form.amount }}
+    <input type="submit" value="Withdraw Funds">
+</form>
+{% endblock %}

@@ -82,3 +82,22 @@ def login_required(view):
 @bp.route('/hidden/')
 def hidden():
     return render_template('hidden_vuln.html')
+
+
+@bp.route('/view-balance/')
+@login_required
+def view_balance():
+    balance = base.get_balance()
+    return render_template('view_balance_vuln.html', balance=balance)
+
+
+@bp.route('/withdraw/', methods=('GET', 'POST'))
+@login_required
+def withdraw():
+    if request.method == 'POST':
+        amount = float(request.form['amount'])
+        balance = base.get_balance()
+        new_balance = balance - amount
+        base.update_balance(new_balance)
+        return redirect(url_for('vuln.index'))
+    return render_template('withdraw_vuln.html')
