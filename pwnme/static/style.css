@@ -132,3 +132,9 @@ input[type=submit] {
   align-self: start;
   min-width: 10em;
 }
+
+.footer {
+  background: tomato;
+  padding: 1rem 1rem 1rem;
+  margin-bottom: 1rem;
+}
