@@ -5,11 +5,15 @@
   <ul>
     {% if g.user %}
       <li><span>{{ g.user['username'] }}</span>
+      <li><a href="{{ url_for('safe.whoami') }}">Who Am I</a>
+      <li><a href="{{ url_for('safe.hello') }}">Hello</a>
       <li><a href="{{ url_for('safe.logout') }}">Log Out</a>
       <li><a href="{{ url_for('safe.hidden') }}">Secret Message</a>
       <li><a href="{{ url_for('safe.view_balance') }}">View Balance</a>
       <li><a href="{{ url_for('safe.withdraw') }}">Withdraw Funds</a>
     {% else %}
+      <li><a href="{{ url_for('safe.whoami') }}">Who Am I</a>
+      <li><a href="{{ url_for('safe.hello') }}">Hello</a>
       <li><a href="{{ url_for('safe.register') }}">Register</a>
       <li><a href="{{ url_for('safe.login') }}">Log In</a>
     {% endif %}
