@@ -10,7 +10,7 @@ def main():
         'SECRET_KEY': secrets.token_hex(int(SECRET_KEY_BITS / 8)),
     }
     for key, value in config.items():
-        print(f'{key} = {value}')
+        print(f'{key} = "{value}"')
 
 
 if __name__ == '__main__':
