@@ -3,10 +3,11 @@ import functools
 from flask import (
     render_template, request, Blueprint, g, redirect, url_for, flash)
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, validators
+from wtforms import IntegerField, StringField, validators
 
 from pwnme import base
 from pwnme.base import Site
+from pwnme.db import get_db
 
 bp = Blueprint('safe', __name__, url_prefix='/safe')
 
@@ -109,6 +110,30 @@ def withdraw():
     if request.method == 'POST':
         flash(form.errors)
     return render_template('withdraw_safe.html', form=form)
+
+
+class LookupForm(FlaskForm):
+
+    user = StringField('Username', [validators.DataRequired()])
+
+
+@bp.route('/lookup_user/', methods=('GET', 'POST'))
+@login_required
+def lookup_user():
+    user_id = None
+    form = LookupForm()
+    if form.validate_on_submit():
+        username = form.user.data
+        db = get_db()
+        user = db.execute(
+            'SELECT * FROM user WHERE username = ?', (username,)
+        ).fetchone()
+        if user_id:
+            user_id = int(user['id'])
+    elif request.method == 'POST':
+        flash(form.errors)
+    return render_template(
+        'lookup_safe.html', user_id=user_id, form=form)
 
 
 @bp.after_request

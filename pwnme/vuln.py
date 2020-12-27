@@ -1,10 +1,11 @@
 import functools
 
 from flask import (
-    redirect, render_template, request, Blueprint, url_for, g)
+    redirect, render_template, request, Blueprint, url_for, g, session)
 
 from pwnme import base
 from pwnme.base import Site
+from pwnme.db import get_db
 
 
 bp = Blueprint('vuln', __name__, url_prefix='/vuln')
@@ -101,3 +102,19 @@ def withdraw():
         base.update_balance(new_balance)
         return redirect(url_for('vuln.index'))
     return render_template('withdraw_vuln.html')
+
+
+@bp.route('/lookup_user/', methods=('GET', 'POST'))
+@login_required
+def lookup_user():
+    user_id = None
+    if request.method == 'POST':
+        username = request.form['user']
+        db = get_db()
+        # executescript() allows for multiple commands
+        user = db.executescript(
+            f'SELECT * FROM user WHERE username = "{username}"'
+        ).fetchone()
+        if user:
+            user_id = int(user['id'])
+    return render_template('lookup_vuln.html', user_id=user_id)

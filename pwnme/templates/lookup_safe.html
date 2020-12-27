@@ -1,0 +1,16 @@
+{% extends 'base_safe.html' %}
+
+{% block header %}
+    <h1>{% block title %}Lookup User{% endblock %} </h1>
+{% endblock %}
+
+{% block content %}
+{% if user_id %}
+    <h1>User has ID {{ user_id }}!</h1>
+{% endif %}
+<form method="post">
+    {{ form.csrf_token }}
+    {{ form.user.label }} {{ form.user }}
+    <input type="submit" value="Lookup">
+</form>
+{% endblock %}
