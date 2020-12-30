@@ -115,6 +115,13 @@ def lookup_user():
         user = db.executescript(
             f'SELECT * FROM user WHERE username = "{username}"'
         ).fetchone()
+        # This isn't really needed, but I needed to use executescript(),
+        # which doesn't seem to work with fetchone(), to make fun SQL
+        # injections possible.
+        if not user:
+            user = db.execute(
+                f'SELECT * FROM user WHERE username = "{username}"'
+            ).fetchone()
         if user:
             user_id = int(user['id'])
     return render_template('lookup_vuln.html', user_id=user_id)
